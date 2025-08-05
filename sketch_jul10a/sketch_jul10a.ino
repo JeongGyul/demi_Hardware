@@ -16,9 +16,9 @@ unsigned long lastSensorMeasureTime = 0;
 long distances[3] = {0};
 
 // 레일 조작을 위해 사용하는 핀 번호 선언
-const int PUL = 9;  // Pulse pin
+const int PUL = 11;  // Pulse pin
 const int DIR = 10;  // Direction pin
-const int ENA = 11;  // Enable pin
+const int ENA = 9;  // Enable pin
 
 // 서보 모터 조작을 위해 사용하는 핀 번호 선언
 const int motor1 = 12;
@@ -65,16 +65,12 @@ void loop() {
     if (currentSensor >= 3) {
       measuring = false;
 
-      // 모든 센서 측정 완료 후 출력
-      Serial.print("Distances: ");
-      for (int i = 0; i < 3; i++) {
-        Serial.print("S");
-        Serial.print(i + 1); 
-        Serial.print(": ");
-        Serial.print(distances[i]);
-        Serial.print("cm  ");
-      }
-      Serial.println();
+      // 모든 센서 측정 완료 후 센서값 라즈베리파이로 전송
+      Serial.print(distances[0]);
+      Serial.print(",");
+      Serial.print(distances[1]);
+      Serial.print(",");
+      Serial.print(distances[2]);
     }
   }
  

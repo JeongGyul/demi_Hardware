@@ -6,10 +6,14 @@ import cv2
 import serial
 import time
 import math
+import requests
 
 # 아두이노 시리얼 포트 설정
 ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
 time.sleep(2)  # 아두이노 초기화 시간 확보
+
+# Django 서버 주소
+url = "http://192.168.0.35:8000/api/ultrasound/saturation/"
 
 # YOLO 모델 로드
 model = YOLO("/home/el/Desktop/models/yolov8s_best.pt")
@@ -91,6 +95,36 @@ while True:
 
     if cv2.waitKey(1) & 0xFF == ord('q'): # q를 누르면 프로그램 종료
         break
+    
+    # 초음파 센서 값 Django 서버로 전송
+    try:
+        line = ser.readline().decode('utf-8').strip()
+        if line:
+            print("Received:", line)
+            values = line.split(',')
+            print(values)
+            #if len(values) == 3:
+            #d1, d2, d3 = map(int, values)
+            d1 = values[0]
+            d2 = values[1]
+            d3 = values[2]
+            
+            print(f"-----------{d1}-------------")
+            print(f"-----------{d2}-------------")
+            print(f"-----------{d3}-------------")
+            
+            data = {
+                "sensor1": 1,
+                "sensor2": 2,
+                "sensor3": 3,
+            }
+
+            response = requests.post(url, json=data)
+            print("POST status:", response.status_code)
+
+    except Exception as e:
+        print("Error:", e)
+    
 
 cv2.destroyAllWindows()
 ser.close()
