@@ -71,6 +71,7 @@ void loop() {
       Serial.print(distances[1]);
       Serial.print(",");
       Serial.print(distances[2]);
+      Serial.print("\n");
     }
   }
  

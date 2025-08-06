@@ -97,33 +97,35 @@ while True:
         break
     
     # 초음파 센서 값 Django 서버로 전송
-    try:
-        line = ser.readline().decode('utf-8').strip()
-        if line:
-            print("Received:", line)
-            values = line.split(',')
-            print(values)
-            #if len(values) == 3:
-            #d1, d2, d3 = map(int, values)
-            d1 = values[0]
-            d2 = values[1]
-            d3 = values[2]
+    if ser.in_waiting:
+        print("if문 들어옴", ser.in_waiting)
+        try:
+            raw = ser.read(ser.in_waiting).decode('utf-8')
+            lines = raw.strip().split('\n')
             
-            print(f"-----------{d1}-------------")
-            print(f"-----------{d2}-------------")
-            print(f"-----------{d3}-------------")
-            
-            data = {
-                "sensor1": 1,
-                "sensor2": 2,
-                "sensor3": 3,
-            }
+            for line in lines:
+                #line = ser.readline().decode('utf-8').strip()
+                print("Received:", line)
+                values = line.split(',')
+                print(values)
+                if len(values) == 3:
+                    d1, d2, d3 = map(int, values)
+                    d1 = values[0]
+                    d2 = values[1]
+                    d3 = values[2]
+                    
+                    data = {
+                        "plastic": d1,
+                        "glass": d2,
+                        "can": d3,
+                    }
+                    
+                    print(data)
+                    response = requests.post(url, json=data, timeout=2)
+                    print("POST status:", response.status_code)
 
-            response = requests.post(url, json=data)
-            print("POST status:", response.status_code)
-
-    except Exception as e:
-        print("Error:", e)
+        except Exception as e:
+            print("Error:", e)
     
 
 cv2.destroyAllWindows()
