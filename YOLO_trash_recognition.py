@@ -98,7 +98,6 @@ while True:
     
     # 초음파 센서 값 Django 서버로 전송
     if ser.in_waiting:
-        print("if문 들어옴", ser.in_waiting)
         try:
             raw = ser.read(ser.in_waiting).decode('utf-8')
             lines = raw.strip().split('\n')
@@ -110,9 +109,10 @@ while True:
                 print(values)
                 if len(values) == 3:
                     d1, d2, d3 = map(int, values)
-                    d1 = values[0]
-                    d2 = values[1]
-                    d3 = values[2]
+                    
+                    print(type(d1))
+                    print(type(d2))
+                    print(type(d3))
                     
                     data = {
                         "plastic": d1,
@@ -121,7 +121,7 @@ while True:
                     }
                     
                     print(data)
-                    response = requests.post(url, json=data, timeout=2)
+                    response = requests.post(url, json=data, timeout=0.5)
                     print("POST status:", response.status_code)
 
         except Exception as e:

@@ -1,13 +1,13 @@
 #include <Servo.h>
 
 // 초음파 센서 핀 번호
-const int echoPins[3] = {1, 3, 5};
-const int trigPins[3] = {2, 4, 6};
+const int echoPins[3] = {2, 4, 6};
+const int trigPins[3] = {3, 5, 7};
 
 // 초음파 센서 거리 측정에 사용되는 변수 선언
 unsigned long lastCycleTime = 0;
-const unsigned long measurementCycleInterval = 1000;   // 전체 측정 주기 
-const unsigned long sensorInterval = 100;              // 센서 간 시간차 
+const unsigned long measurementCycleInterval = 5000;   // 전체 측정 주기 
+const unsigned long sensorInterval = 200;              // 센서 간 시간차 
 
 int currentSensor = 0;
 bool measuring = false;
@@ -193,7 +193,7 @@ long getDistance(int trigPin, int echoPin) {
   digitalWrite(trigPin, LOW);
 
   long duration = pulseIn(echoPin, HIGH, 30000); // 최대 대기 30ms (30cm 이상)
-  long distance = duration * 0.034 / 2; // cm로 변환
+  long distance = duration / 29 / 2; // cm로 변환
 
   if (distance == 0 || distance > 400) return -1;
   return distance;
