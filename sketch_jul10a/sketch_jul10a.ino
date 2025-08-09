@@ -13,7 +13,7 @@ int currentSensor = 0;
 bool measuring = false;
 unsigned long lastSensorMeasureTime = 0;
 
-long distances[3] = {0};
+long fillPercent[3] = {0};
 
 // 레일 조작을 위해 사용하는 핀 번호 선언
 const int PUL = 11;  // Pulse pin
@@ -58,7 +58,7 @@ void loop() {
 
   // 측정 중이면 센서를 순차적으로 측정
   if (measuring && now - lastSensorMeasureTime >= sensorInterval) {
-    distances[currentSensor] = getDistance(trigPins[currentSensor], echoPins[currentSensor]);
+    fillPercent[currentSensor] = getFillLevel(trigPins[currentSensor], echoPins[currentSensor]);
     currentSensor++;
     lastSensorMeasureTime = now;
 
@@ -66,11 +66,11 @@ void loop() {
       measuring = false;
 
       // 모든 센서 측정 완료 후 센서값 라즈베리파이로 전송
-      Serial.print(distances[0]);
+      Serial.print(fillPercent[0]);
       Serial.print(",");
-      Serial.print(distances[1]);
+      Serial.print(fillPercent[1]);
       Serial.print(",");
-      Serial.print(distances[2]);
+      Serial.print(fillPercent[2]);
       Serial.print("\n");
     }
   }
@@ -184,8 +184,8 @@ void railInit() {
   }
 }
 
-// 초음파 센서로 거리 측정하는 사용자 정의 함수
-long getDistance(int trigPin, int echoPin) {
+// 초음파 센서를 이용해 쓰레기통의 포화도를 반환하는 사용자 정의 함수
+long getFillLevel(int trigPin, int echoPin) {
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
@@ -195,6 +195,17 @@ long getDistance(int trigPin, int echoPin) {
   long duration = pulseIn(echoPin, HIGH, 30000); // 최대 대기 30ms (30cm 이상)
   long distance = duration / 29 / 2; // cm로 변환
 
-  if (distance == 0 || distance > 400) return -1;
-  return distance;
+  int min_d = 28; // 쓰레기통이 가득 찼을 때 거리 값
+  int max_d = 57; // 쓰레기통이 비어있을 때 거리 값
+  
+  // 측정된 거리 값을 기반으로 포화도 반환
+  if (distance <= min_d) {
+    return 100;
+  }
+  else if (distance >= max_d) {
+    return 0;
+  }
+  else {
+    return (int)round((float)(max_d - distance) / (max_d - min_d) * 100);
+  }
 }

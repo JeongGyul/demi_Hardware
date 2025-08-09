@@ -110,10 +110,6 @@ while True:
                 if len(values) == 3:
                     d1, d2, d3 = map(int, values)
                     
-                    print(type(d1))
-                    print(type(d2))
-                    print(type(d3))
-                    
                     data = {
                         "plastic": d1,
                         "glass": d2,
