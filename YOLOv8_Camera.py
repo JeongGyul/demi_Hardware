@@ -5,7 +5,7 @@ from ultralytics import YOLO
 import cv2
 
 
-model = YOLO("/home/el/Desktop/models/yolov8s_best.pt") 
+model = YOLO("/home/el/Desktop/models/yolov8n_best.pt") 
 
 picam2 = Picamera2()
 picam2.preview_configuration.main.size = (640, 480)  
