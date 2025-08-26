@@ -31,6 +31,7 @@ void setup() {
 
   pinMode(motor1_1, OUTPUT);
   pinMode(motor1_2, OUTPUT);
+  pinMode(motor1EnablePin, OUTPUT);
   analogWrite(motor1EnablePin, 0); // DC 모터 초기 설정
 
   for (int i = 0; i < 3; i++) {
@@ -89,6 +90,7 @@ void loop() {
       }
 
       dropTrash();
+      clearSerialBuffer();
 
       for (int i = 0; i < 1600; i++) {
           digitalWrite(DIR, HIGH);
@@ -111,6 +113,7 @@ void loop() {
       }
      
       dropTrash();
+      clearSerialBuffer();
 
       for (int i = 0; i < 1600; i++) {
           digitalWrite(DIR, LOW);
@@ -125,6 +128,7 @@ void loop() {
     // 쓰레기통의 위치가 중앙이므로 레일 조작 불필요
     else if (material == 'G') {
       dropTrash();
+      clearSerialBuffer();
     }
   }
 }
@@ -153,21 +157,36 @@ void railInit() {
 
 // 쓰레기 투하를 위해 DC모터를 제어하는 사용자 정의 함수
 void dropTrash() {
-    digitalWrite(motor1_1, HIGH);
-    digitalWrite(motor1_2, LOW); // 역방향 회전(쓰레기 투하)
+    digitalWrite(motor1_1, LOW);
+    digitalWrite(motor1_2, HIGH); 
+    
+    analogWrite(motor1EnablePin, 255);
+    delay(500);
+
     analogWrite(motor1EnablePin, 200);
-    delay(5000);
-    analogWrite(motor1EnablePin, 50);
+    delay(4500);
+
     analogWrite(motor1EnablePin, 0);
     delay(1000);
 
-    digitalWrite(motor1_1, LOW);
-    digitalWrite(motor1_2, HIGH); // 정방향 회전(투하 후 올리기)
+    digitalWrite(motor1_1, HIGH);
+    digitalWrite(motor1_2, LOW);
+
+    analogWrite(motor1EnablePin, 255);  
+    delay(500);
+
     analogWrite(motor1EnablePin, 200);
-    delay(5000);
-    analogWrite(motor1EnablePin, 50);
+    delay(4500);
+
     analogWrite(motor1EnablePin, 0);
     delay(1000);
+}
+
+// dropTrash() 끝나고 버퍼에 쌓인 시리얼 값 제거
+void clearSerialBuffer() {
+  while (Serial.available() > 0) {
+    Serial.read();
+  }
 }
 
 // 초음파 센서를 이용해 쓰레기통의 포화도를 반환하는 사용자 정의 함수
