@@ -1,5 +1,3 @@
-#include <Servo.h>
-
 // 초음파 센서 핀 번호
 const int echoPins[3] = {2, 4, 6};
 const int trigPins[3] = {3, 5, 7};
@@ -9,36 +7,36 @@ unsigned long lastCycleTime = 0;
 const unsigned long measurementCycleInterval = 5000;   // 전체 측정 주기 
 const unsigned long sensorInterval = 200;              // 센서 간 시간차 
 
+// 레일 조작을 위해 사용하는 핀 번호 선언
+const int DIR = 10;  // Direction pin
+const int ENA = 9;  // Enable pin
+const int PUL = 8;  // Pulse pin
+
+// DC 모터 제어를 위한 핀 번호 선언
+const int motor1EnablePin = 11;
+const int motor1_1 = 12;
+const int motor1_2 = 13;
+
+// 초음파 센서 측정을 위한 변수 선언
 int currentSensor = 0;
 bool measuring = false;
 unsigned long lastSensorMeasureTime = 0;
-
 long fillPercent[3] = {0};
-
-// 레일 조작을 위해 사용하는 핀 번호 선언
-const int PUL = 11;  // Pulse pin
-const int DIR = 10;  // Direction pin
-const int ENA = 9;  // Enable pin
-
-// 서보 모터 조작을 위해 사용하는 핀 번호 선언
-const int motor1 = 12;
-const int motor2 = 13;
-Servo servo1;
-Servo servo2;
 
 void setup() {
   pinMode(PUL, OUTPUT);
   pinMode(DIR, OUTPUT);
   pinMode(ENA, OUTPUT);
-  digitalWrite(ENA, LOW);  // 모터 활성화 (LOW가 Enable임)
+  digitalWrite(ENA, LOW);  // 레일 모터 활성화 (LOW가 Enable임)
+
+  pinMode(motor1_1, OUTPUT);
+  pinMode(motor1_2, OUTPUT);
+  analogWrite(motor1EnablePin, 0); // DC 모터 초기 설정
 
   for (int i = 0; i < 3; i++) {
     pinMode(trigPins[i], OUTPUT);
     pinMode(echoPins[i], INPUT);
   }
-
-  servo1.attach(motor1);
-  servo2.attach(motor2);
   
   Serial.begin(9600);
 
@@ -90,18 +88,7 @@ void loop() {
           delayMicroseconds(300);
       }
 
-      // 쓰레기 투하를 위한 서보모터 제어
-      delay(1000);
-
-      servo1.write(180);
-      servo2.write(180);
-     
-      delay(1500);
-
-      servo1.write(0);
-      servo2.write(0);
-
-      delay(1500);
+      dropTrash();
 
       for (int i = 0; i < 1600; i++) {
           digitalWrite(DIR, HIGH);
@@ -123,18 +110,7 @@ void loop() {
           delayMicroseconds(300);
       }
      
-      // 쓰레기 투하를 위한 서보모터 제어
-      delay(1000);
-
-      servo1.write(180);
-      servo2.write(180);
-     
-      delay(1500);
-
-      servo1.write(0);
-      servo2.write(0);
-
-      delay(1500);
+      dropTrash();
 
       for (int i = 0; i < 1600; i++) {
           digitalWrite(DIR, LOW);
@@ -148,16 +124,7 @@ void loop() {
     // 라즈베리파이가 탐지한 객체가 glass이면 수행
     // 쓰레기통의 위치가 중앙이므로 레일 조작 불필요
     else if (material == 'G') {
-      // 쓰레기 투하를 위한 서보모터 제어
-      servo1.write(180);
-      servo2.write(180);
-     
-      delay(1500);
-
-      servo1.write(0);
-      servo2.write(0);
-
-      delay(1500);
+      dropTrash();
     }
   }
 }
@@ -182,6 +149,25 @@ void railInit() {
     digitalWrite(PUL, LOW);
     delayMicroseconds(300);
   }
+}
+
+// 쓰레기 투하를 위해 DC모터를 제어하는 사용자 정의 함수
+void dropTrash() {
+    digitalWrite(motor1_1, HIGH);
+    digitalWrite(motor1_2, LOW); // 역방향 회전(쓰레기 투하)
+    analogWrite(motor1EnablePin, 200);
+    delay(5000);
+    analogWrite(motor1EnablePin, 50);
+    analogWrite(motor1EnablePin, 0);
+    delay(1000);
+
+    digitalWrite(motor1_1, LOW);
+    digitalWrite(motor1_2, HIGH); // 정방향 회전(투하 후 올리기)
+    analogWrite(motor1EnablePin, 200);
+    delay(5000);
+    analogWrite(motor1EnablePin, 50);
+    analogWrite(motor1EnablePin, 0);
+    delay(1000);
 }
 
 // 초음파 센서를 이용해 쓰레기통의 포화도를 반환하는 사용자 정의 함수
