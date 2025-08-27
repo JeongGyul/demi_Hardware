@@ -13,7 +13,7 @@ ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
 time.sleep(2)  # 아두이노 초기화 시간 확보
 
 # Django 서버 주소
-url = "http://192.168.1.104:8000/api/ultrasound/saturation/"
+url = "http://192.168.1.101:8000/api/ultrasound/saturation/"
 
 # YOLO 모델 로드
 model = YOLO("/home/el/Desktop/models/yolov8s_best.pt")
@@ -112,8 +112,8 @@ while True:
                     
                     data = {
                         "plastic": d1,
-                        "glass": d2,
-                        "can": d3,
+                        "glass": d3,
+                        "can": d2,
                     }
                     
                     print(data)

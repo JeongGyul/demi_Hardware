@@ -157,26 +157,20 @@ void railInit() {
 
 // 쓰레기 투하를 위해 DC모터를 제어하는 사용자 정의 함수
 void dropTrash() {
-    digitalWrite(motor1_1, LOW);
-    digitalWrite(motor1_2, HIGH); 
+    digitalWrite(motor1_1, HIGH);
+    digitalWrite(motor1_2, LOW); 
     
-    analogWrite(motor1EnablePin, 255);
-    delay(500);
-
-    analogWrite(motor1EnablePin, 200);
-    delay(4500);
+    analogWrite(motor1EnablePin, 190);
+    delay(2500);
 
     analogWrite(motor1EnablePin, 0);
     delay(1000);
 
-    digitalWrite(motor1_1, HIGH);
-    digitalWrite(motor1_2, LOW);
+    digitalWrite(motor1_1, LOW);
+    digitalWrite(motor1_2, HIGH);
 
-    analogWrite(motor1EnablePin, 255);  
-    delay(500);
-
-    analogWrite(motor1EnablePin, 200);
-    delay(4500);
+    analogWrite(motor1EnablePin, 190);  
+    delay(2500);
 
     analogWrite(motor1EnablePin, 0);
     delay(1000);
@@ -200,8 +194,8 @@ long getFillLevel(int trigPin, int echoPin) {
   long duration = pulseIn(echoPin, HIGH, 30000); // 최대 대기 30ms (30cm 이상)
   long distance = duration / 29 / 2; // cm로 변환
 
-  int min_d = 28; // 쓰레기통이 가득 찼을 때 거리 값
-  int max_d = 57; // 쓰레기통이 비어있을 때 거리 값
+  int min_d = 38; // 쓰레기통이 가득 찼을 때 거리 값
+  int max_d = 67; // 쓰레기통이 비어있을 때 거리 값
   
   // 측정된 거리 값을 기반으로 포화도 반환
   if (distance <= min_d) {
